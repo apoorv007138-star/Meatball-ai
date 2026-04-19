@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meatball AI — Your AI Food Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FAF7F2;
+    --cream2: #F2EDE4;
+    --cream3: #E8E0D4;
+    --terracotta: #C4593A;
+    --terra-light: #E8896E;
+    --terra-dark: #8C3921;
+    --ink: #1C1814;
+    --ink2: #3D352D;
+    --muted: #8C7E72;
+    --border: rgba(28,24,20,0.1);
+    --border2: rgba(28,24,20,0.06);
+    --white: #ffffff;
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-lg: 20px;
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+  }
+
+  .app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ===================== SIDEBAR ===================== */
+  .sidebar {
+    width: 268px;
+    flex-shrink: 0;
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 20% 80%, rgba(196,89,58,0.12) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(196,89,58,0.06) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .sidebar > * { position: relative; z-index: 1; }
+
+  .sidebar-header {
+    padding: 26px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 8px;
+  }
+
+  .logo-ball {
+    width: 38px; height: 38px;
+    background: var(--terracotta);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px;
+    flex-shrink: 0;
+    box-shadow: inset -3px -3px 8px rgba(0,0,0,0.25),
+                inset 2px 2px 5px rgba(255,255,255,0.1),
+                0 4px 12px rgba(196,89,58,0.4);
+  }
+
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: -0.4px;
+    line-height: 1;
+  }
+
+  .logo-text em { font-style: italic; color: var(--terra-light); }
+
+  .logo-tagline {
+    font-size: 11px;
+    color: rgba(255,255,255,0.28);
+    letter-spacing: 0.2px;
+    font-weight: 300;
+    margin-left: 49px;
+    line-height: 1.4;
+  }
+
+  .sidebar-nav { padding: 14px 10px; flex: 1; overflow-y: auto; }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+
+  .nav-section-label {
+    font-size: 9.5px;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    padding: 0 10px;
+    margin-bottom: 6px;
+    margin-top: 18px;
+    font-weight: 500;
+  }
+
+  .nav-section-label:first-child { margin-top: 4px; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-bottom: 1px;
+    user-select: none;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,0.06); }
+  .nav-item:active { transform: scale(0.98); }
+
+  .nav-item.active {
+    background: linear-gradient(135deg, var(--terracotta) 0%, #A8482D 100%);
+    box-shadow: 0 3px 12px rgba(196,89,58,0.35);
+  }
+
+  .nav-icon {
+    width: 33px; height: 33px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.07);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .nav-item.active .nav-icon { background: rgba(255,255,255,0.18); }
+
+  .nav-info { flex: 1; min-width: 0; }
+
+  .nav-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-item.active .nav-title { color: #fff; }
+  .nav-item.active .nav-desc { color: rgba(255,255,255,0.55); }
+
+  .new-chat-btn {
+    margin: 0 10px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+    width: calc(100% - 20px);
+  }
+
+  .new-chat-btn:hover { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.9); }
+
+  .sidebar-footer {
+    padding: 14px 20px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .footer-avatar {
+    width: 30px; height: 30px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .footer-info { flex: 1; }
+  .footer-name { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.6); }
+  .footer-powered { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 1px; }
+
+  /* ===================== MAIN ===================== */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--cream); }
+
+  .topbar {
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--cream);
+    flex-shrink: 0;
+    gap: 12px;
+  }
+
+  .topbar-left { flex: 1; min-width: 0; }
+
+  .topbar-left h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-left p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+  .mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(196,89,58,0.08);
+    color: var(--terracotta);
+    border: 1px solid rgba(196,89,58,0.2);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .clear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .clear-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
+
+  /* ===================== CHAT ===================== */
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    scroll-behavior: smooth;
+  }
+
+  .chat-area::-webkit-scrollbar { width: 4px; }
+  .chat-area::-webkit-scrollbar-track { background: transparent; }
+  .chat-area::-webkit-scrollbar-thumb { background: var(--cream3); border-radius: 4px; }
+
+  .welcome-card {
+    background: linear-gradient(140deg, var(--terracotta) 0%, #7A2F18 100%);
+    border-radius: var(--radius-lg);
+    padding: 28px 30px 24px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 8px 32px rgba(196,89,58,0.25);
+  }
+
+  .welcome-card::before {
+    content: '🍝';
+    position: absolute;
+    right: -16px; top: -16px;
+    font-size: 110px;
+    opacity: 0.1;
+    transform: rotate(-18deg);
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .welcome-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 23px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .welcome-card p {
+    font-size: 13.5px;
+    opacity: 0.82;
+    line-height: 1.65;
+    margin-bottom: 20px;
+    max-width: 480px;
+  }
+
+  .quick-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .chip {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: rgba(255,255,255,0.92);
+    border-radius: 20px;
+    padding: 7px 15px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .chip:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.4); }
+  .chip:active { transform: scale(0.97); }
+
+  .message {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    animation: msgIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .avatar.ai {
+    background: var(--terracotta);
+    box-shadow: 0 3px 10px rgba(196,89,58,0.3), inset -2px -2px 4px rgba(0,0,0,0.2);
+  }
+
+  .avatar.user {
+    background: var(--ink2);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cream);
+    letter-spacing: 0.3px;
+  }
+
+  .bubble {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.72;
+  }
+
+  .bubble.ai {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px 18px 18px 18px;
+    color: var(--ink);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .bubble.user {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 18px 4px 18px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+
+  .bubble.ai strong { color: var(--terracotta); font-weight: 500; }
+
+  .typing-wrapper { display: flex; gap: 12px; align-items: flex-start; animation: msgIn 0.2s ease; }
+
+  .typing-bubble {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px 18px 18px 18px;
+    padding: 14px 18px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: var(--cream3);
+    border-radius: 50%;
+    animation: typingBounce 1.3s ease infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.18s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.36s; }
+
+  @keyframes typingBounce {
+    0%, 55%, 100% { transform: translateY(0); background: var(--cream3); }
+    25% { transform: translateY(-6px); background: var(--terracotta); }
+  }
+
+  /* ===================== RECIPE CARD ===================== */
+  .recipe-card-wrapper { max-width: 78%; }
+
+  .recipe-intro {
+    font-size: 14px;
+    color: var(--ink2);
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px 18px 18px 18px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+    line-height: 1.6;
+  }
+
+  .recipe-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  .recipe-card-header {
+    background: linear-gradient(135deg, var(--cream2) 0%, var(--cream3) 100%);
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .recipe-emoji { font-size: 28px; line-height: 1; }
+
+  .recipe-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .recipe-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+  .recipe-meta-row {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .meta-pill {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 8px;
+    border-right: 1px solid var(--border);
+    gap: 2px;
+  }
+
+  .meta-pill:last-child { border-right: none; }
+  .meta-icon { font-size: 14px; }
+  .meta-val { font-size: 12px; font-weight: 500; color: var(--ink); }
+  .meta-lbl { font-size: 10px; color: var(--muted); }
+
+  .recipe-body {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+  }
+
+  .recipe-col { padding: 16px 20px; }
+  .recipe-col:first-child { border-right: 1px solid var(--border); }
+
+  .recipe-col h4 {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .ingredient-list { list-style: none; }
+
+  .ingredient-list li {
+    font-size: 13px;
+    color: var(--ink2);
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.4;
+  }
+
+  .ingredient-list li:last-child { border-bottom: none; }
+
+  .ing-dot {
+    width: 6px; height: 6px;
+    background: var(--terra-light);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .steps-list { list-style: none; }
+
+  .steps-list li {
+    font-size: 13px;
+    color: var(--ink2);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+
+  .steps-list li:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 20px; height: 20px;
+    background: var(--terracotta);
+    color: white;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ===================== NUTRITION CARD ===================== */
+  .nutrition-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    max-width: 78%;
+  }
+
+  .nutrition-header {
+    background: linear-gradient(135deg, #1C3A28, #0D2218);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nutrition-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: white;
+    font-weight: 700;
+  }
+
+  .nutrition-header p { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+  .nutrition-macros {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .macro-item {
+    padding: 14px 10px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .macro-item:last-child { border-right: none; }
+
+  .macro-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--terracotta);
+    line-height: 1;
+  }
+
+  .macro-unit { font-size: 11px; color: var(--muted); }
+  .macro-lbl { font-size: 11px; color: var(--ink2); margin-top: 3px; }
+
+  .nutrition-body { padding: 14px 20px; }
+  .nutrition-body p { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+
+  /* ===================== INPUT ===================== */
+  .input-area {
+    padding: 14px 28px 18px;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+    flex-shrink: 0;
+  }
+
+  .input-row { display: flex; gap: 10px; align-items: flex-end; }
+
+  .input-wrap {
+    flex: 1;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrap:focus-within { border-color: var(--terracotta); }
+
+  .input-box {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    resize: none;
+    min-height: 24px;
+    max-height: 100px;
+    line-height: 1.5;
+  }
+
+  .input-box::placeholder { color: var(--muted); }
+
+  .send-btn {
+    width: 46px; height: 46px;
+    background: var(--terracotta);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    color: white;
+    font-size: 17px;
+    box-shadow: 0 3px 10px rgba(196,89,58,0.3);
+  }
+
+  .send-btn:hover { background: var(--terra-dark); transform: translateY(-1px); }
+  .send-btn:active { transform: translateY(0) scale(0.96); }
+  .send-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .input-hint { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; opacity: 0.7; }
+
+  .error-bubble {
+    background: #FFF5F5;
+    border: 1px solid rgba(220,38,38,0.2);
+    color: #991B1B;
+    border-radius: 4px 18px 18px 18px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    max-width: 70%;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 640px) {
+    .sidebar { width: 220px; }
+    .chat-area { padding: 16px 16px 8px; }
+    .topbar { padding: 12px 16px; }
+    .input-area { padding: 12px 16px 16px; }
+    .bubble { max-width: 85%; }
+    .recipe-body { grid-template-columns: 1fr; }
+    .recipe-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    .nutrition-macros { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-ball">🍝</div>
+        <span class="logo-text">Meatball <em>AI</em></span>
+      </div>
+      <div class="logo-tagline">Round with knowledge. Saucy with answers.</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Modes</div>
+
+      <div class="nav-item active" onclick="switchMode('recipe', this)">
+        <div class="nav-icon">🍳</div>
+        <div class="nav-info">
+          <div class="nav-title">Recipe Generator</div>
+          <div class="nav-desc">Ingredients → dish</div>
+        </div>
+      </div>
+
+      <div class="nav-item" onclick="switchMode('substitute', this)">
+        <div class="nav-icon">🔄</div>
+        <div class="nav-info">
+          <div class="nav-title">Substitutions</div>
+          <div class="nav-desc">Swap missing items</div>
+        </div>
+      </div>
+
+      <div class="nav-item" onclick="switchMode('planner', this)">
+        <div class="nav-icon">📅</div>
+        <div class="nav-info">
+          <div class="nav-title">Meal Planner</div>
+          <div class="nav-desc">Weekly plan & groceries</div>
+        </div>
+      </div>
+
+      <div class="nav-item" onclick="switchMode('nutrition', this)">
+        <div class="nav-icon">📊</div>
+        <div class="nav-info">
+          <div class="nav-title">Nutrition Info</div>
+          <div class="nav-desc">Macros & calories</div>
+        </div>
+      </div>
+
+      <div class="nav-section-label">Chat</div>
+
+      <div class="nav-item" onclick="switchMode('chef', this)">
+        <div class="nav-icon">👨‍🍳</div>
+        <div class="nav-info">
+          <div class="nav-title">Ask Chef Meatball</div>
+          <div class="nav-desc">Open food Q&A</div>
+        </div>
+      </div>
+    </nav>
+
+    <button class="new-chat-btn" onclick="clearChat()">
+      <span>✦</span> New conversation
+    </button>
+
+    <div class="sidebar-footer">
+      <div class="footer-avatar">🍝</div>
+      <div class="footer-info">
+        <div class="footer-name">Chef Meatball</div>
+        <div class="footer-powered">Powered by Groq AI · Free</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1 id="mode-title">Recipe Generator</h1>
+        <p id="mode-desc">Tell me what ingredients you have and I'll cook up a recipe</p>
+      </div>
+      <div class="topbar-right">
+        <div class="mode-badge" id="mode-badge">🍳 Recipe Mode</div>
+        <button class="clear-btn" onclick="clearChat()">Clear chat</button>
+      </div>
+    </div>
+
+    <div class="chat-area" id="chat"></div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <div class="input-wrap">
+          <textarea
+            id="user-input"
+            class="input-box"
+            placeholder="Ask Chef Meatball anything about food..."
+            rows="1"
+            onkeydown="handleKey(event)"
+            oninput="autoResize(this)"
+          ></textarea>
+        </div>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="input-hint">Enter to send &nbsp;·&nbsp; Shift+Enter for new line</div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ===================== CONFIG =====================
+const GROQ_API_KEY = "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";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+
+// ===================== MODES =====================
+const MODES = {
+  recipe: {
+    title: 'Recipe Generator',
+    desc: "Tell me what ingredients you have and I'll cook up a recipe",
+    badge: '🍳 Recipe Mode',
+    welcome: {
+      heading: "Hello! I'm Chef Meatball 👋",
+      body: "Tell me what ingredients you have on hand and I'll craft a delicious, detailed recipe just for you. No ingredient is too humble — I can work with almost anything!",
+      chips: [
+        { label: '🐔 Chicken + pasta idea', prompt: 'I have chicken, garlic, lemon, and pasta. What can I make?' },
+        { label: '🥚 Eggs & leftover rice', prompt: 'I have eggs, leftover rice, soy sauce and green onions. What can I make?' },
+        { label: '🍅 Tomato-based dish', prompt: 'I have tomatoes, onions, canned chickpeas, and spices. Any ideas?' },
+        { label: '🍌 Banana dessert', prompt: 'I have ripe bananas, flour, eggs and sugar. Make me a dessert.' },
+      ]
+    },
+    system: `You are Chef Meatball, a warm, expert, and playful AI food companion. When the user gives you ingredients, create a detailed, delicious recipe.
+
+You MUST respond with ONLY a valid JSON object and nothing else — no explanation, no markdown, no backticks. Use this exact structure:
+{"type":"recipe","name":"Dish Name","emoji":"🍳","time":"25 min","servings":"2","calories":"480 kcal","difficulty":"Easy","cuisine":"Italian","ingredients":["200g pasta","3 cloves garlic","1 lemon, zested","2 tbsp olive oil","Salt and pepper"],"steps":["Boil salted water and cook pasta until al dente, about 8 minutes","While pasta cooks, mince garlic and warm olive oil in a pan over medium heat","Add garlic to oil and cook 1 minute until fragrant","Drain pasta, reserving half a cup of pasta water","Toss pasta with oil, lemon zest, and a splash of pasta water","Season generously and serve immediately"]}
+
+Keep ingredients to 5-7 items, steps to 5-6 steps. Make the recipe genuinely delicious and specific. Choose a relevant food emoji.`
+  },
+
+  substitute: {
+    title: 'Ingredient Substitutions',
+    desc: "Missing an ingredient? I'll find you smart swaps",
+    badge: '🔄 Substitute Mode',
+    welcome: {
+      heading: 'Smart Swaps, Zero Panic 🔄',
+      body: "Running low on an ingredient? I'll find you the best substitutes with exact ratios and tips on how each swap affects your dish.",
+      chips: [
+        { label: '🧈 Butter substitute', prompt: 'What can I substitute for butter in baking?' },
+        { label: '🥚 Egg substitute', prompt: 'What replaces eggs in a cake recipe?' },
+        { label: '🥛 No buttermilk', prompt: "I don't have buttermilk. What can I use instead?" },
+        { label: '🍋 Lemon juice swap', prompt: 'Can I substitute anything for fresh lemon juice?' },
+      ]
+    },
+    system: `You are Chef Meatball, a warm, expert AI food companion specializing in ingredient substitutions.
+
+When asked about substituting an ingredient, respond in clear, friendly prose (no JSON needed). Structure your response:
+1. Name 2-3 best substitutes
+2. Give the exact ratio for each (e.g., "use 3/4 cup yogurt for every 1 cup buttermilk")
+3. Briefly explain how the substitute affects texture, flavor, or outcome
+4. End with a quick tip on which substitute works best for which use case
+
+Keep it warm, practical, and concise.`
+  },
+
+  planner: {
+    title: 'Meal Planner',
+    desc: "Tell me your preferences and I'll plan your week",
+    badge: '📅 Planner Mode',
+    welcome: {
+      heading: 'Your Week, Planned Deliciously 📅',
+      body: "Tell me about your diet, preferences, and goals — I'll craft a full weekly meal plan with a grocery list summary.",
+      chips: [
+        { label: '🥗 Healthy vegetarian week', prompt: 'Plan a healthy vegetarian meal plan for this week' },
+        { label: '💪 High-protein meals', prompt: 'I want a high-protein meal plan for muscle building, 5 days' },
+        { label: '⚡ Quick 20-min meals', prompt: 'Plan a week of quick meals under 20 minutes each' },
+        { label: '🌏 Indian cuisine week', prompt: 'Plan a week of Indian home-cooked meals' },
+      ]
+    },
+    system: `You are Chef Meatball, a warm, expert AI food companion. Create structured, practical, and delicious meal plans.
+
+When the user asks for a meal plan:
+- List 5-7 days with Breakfast, Lunch, and Dinner
+- Keep each meal name + one-line description
+- Format clearly with Day 1, Day 2, etc.
+- End with a "Grocery essentials" section listing the main items to buy
+- Be encouraging and warm. Add one short cooking tip at the end.
+- Respond in clean, readable prose/list format — no JSON.`
+  },
+
+  nutrition: {
+    title: 'Nutrition Info',
+    desc: "Ask about any food — I'll break down its nutrition",
+    badge: '📊 Nutrition Mode',
+    welcome: {
+      heading: 'Know What You Eat 📊',
+      body: "Ask me about any dish, ingredient, or food and I'll give you a complete nutrition breakdown — calories, macros, vitamins, and health insights.",
+      chips: [
+        { label: '🍛 Biryani calories', prompt: 'How many calories in a bowl of chicken biryani?' },
+        { label: '🥑 Avocado nutrition', prompt: "What's the nutritional value of one avocado?" },
+        { label: '🍫 Dark chocolate facts', prompt: 'Is dark chocolate healthy? Give me its nutrition facts.' },
+        { label: '🍳 Scrambled eggs macros', prompt: 'Macros in 2 scrambled eggs cooked with butter' },
+      ]
+    },
+    system: `You are Chef Meatball, a warm expert AI food companion specializing in nutrition.
+
+When asked about nutrition, respond with ONLY valid JSON and nothing else — no markdown, no backticks:
+{"type":"nutrition","food":"Chicken Biryani (1 bowl ~350g)","calories":"520","protein":"28g","carbs":"62g","fat":"18g","fiber":"3g","highlight":"Good source of protein and iron","tip":"Opt for brown rice biryani to add more fiber and lower the glycemic index","rating":"Moderate","verdict":"A satisfying, protein-rich meal — best enjoyed in moderation as part of a balanced diet."}
+
+Be accurate with estimates. The verdict should be balanced and helpful, not preachy.`
+  },
+
+  chef: {
+    title: 'Ask Chef Meatball',
+    desc: 'Open culinary Q&A — anything food related',
+    badge: '👨‍🍳 Chef Mode',
+    welcome: {
+      heading: "What's Cooking? 👨‍🍳",
+      body: "I'm Chef Meatball — your round, saucy, all-knowing food companion. Ask me anything: cooking techniques, food history, flavor pairings, kitchen tips, you name it.",
+      chips: [
+        { label: '🔥 Why does pasta water work?', prompt: 'Why do chefs add pasta water to sauces? Does it really help?' },
+        { label: '🧂 How to season like a pro', prompt: 'Teach me how to properly season food like a professional chef' },
+        { label: '🍕 History of pizza', prompt: 'Tell me the interesting history of pizza' },
+        { label: '🌶️ Flavor pairing tips', prompt: "What are the best flavor pairing secrets that home cooks don't know?" },
+      ]
+    },
+    system: `You are Chef Meatball — a warm, knowledgeable, charming, and lightly playful AI food companion. You love cooking, food history, flavor science, and helping people fall in love with food.
+
+Answer any food-related question with genuine expertise, warmth, and personality. Use concrete tips, interesting facts, and light food-themed humor. Keep responses engaging and concise. No JSON needed.`
+  }
+};
+
+// ===================== STATE =====================
+let currentMode = 'recipe';
+let messages = [];
+let isLoading = false;
+
+// ===================== INIT =====================
+document.addEventListener('DOMContentLoaded', renderWelcome);
+
+// ===================== MODE SWITCH =====================
+function switchMode(mode, el) {
+  if (currentMode === mode) return;
+  currentMode = mode;
+  messages = [];
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+
+  const m = MODES[mode];
+  document.getElementById('mode-title').textContent = m.title;
+  document.getElementById('mode-desc').textContent = m.desc;
+  document.getElementById('mode-badge').textContent = m.badge;
+
+  document.getElementById('chat').innerHTML = '';
+  renderWelcome();
+}
+
+function renderWelcome() {
+  const w = MODES[currentMode].welcome;
+  const chat = document.getElementById('chat');
+
+  const chipsHTML = w.chips.map(c =>
+    `<div class="chip" onclick="quickSend('${c.prompt.replace(/'/g, "\\'")}')">${c.label}</div>`
+  ).join('');
+
+  const card = document.createElement('div');
+  card.className = 'welcome-card';
+  card.innerHTML = `<h2>${w.heading}</h2><p>${w.body}</p><div class="quick-chips">${chipsHTML}</div>`;
+  chat.appendChild(card);
+}
+
+function clearChat() {
+  messages = [];
+  document.getElementById('chat').innerHTML = '';
+  renderWelcome();
+}
+
+// ===================== INPUT =====================
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function quickSend(text) {
+  document.getElementById('user-input').value = text;
+  sendMessage();
+}
+
+// ===================== RENDER MESSAGES =====================
+function addUserMessage(text) {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.className = 'message user';
+  el.innerHTML = `
+    <div class="avatar user">You</div>
+    <div class="bubble user">${escapeHTML(text).replace(/\n/g, '<br>')}</div>
+  `;
+  chat.appendChild(el);
+  scrollChat();
+}
+
+function addAIMessage(text) {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.className = 'message';
+  el.innerHTML = `
+    <div class="avatar ai">🍝</div>
+    <div class="bubble ai">${formatText(text)}</div>
+  `;
+  chat.appendChild(el);
+  scrollChat();
+}
+
+function addErrorMessage(text) {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.className = 'message';
+  el.innerHTML = `
+    <div class="avatar ai">🍝</div>
+    <div class="error-bubble">${escapeHTML(text)}</div>
+  `;
+  chat.appendChild(el);
+  scrollChat();
+}
+
+function addRecipeCard(data) {
+  const chat = document.getElementById('chat');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'message';
+  wrapper.style.animation = 'msgIn 0.3s cubic-bezier(0.34,1.56,0.64,1)';
+
+  const ingsHTML = data.ingredients.map(i =>
+    `<li><span class="ing-dot"></span>${escapeHTML(i)}</li>`
+  ).join('');
+
+  const stepsHTML = data.steps.map((s, idx) =>
+    `<li><span class="step-num">${idx + 1}</span>${escapeHTML(s)}</li>`
+  ).join('');
+
+  wrapper.innerHTML = `
+    <div class="avatar ai">🍝</div>
+    <div class="recipe-card-wrapper">
+      <div class="recipe-intro">Here's your recipe! I crafted this especially for your ingredients. Enjoy cooking! 🍽️</div>
+      <div class="recipe-card">
+        <div class="recipe-card-header">
+          <span class="recipe-emoji">${data.emoji || '🍳'}</span>
+          <div>
+            <div class="recipe-name">${escapeHTML(data.name)}</div>
+            <div class="recipe-sub">${escapeHTML(data.cuisine || 'Home cooking')}</div>
+          </div>
+        </div>
+        <div class="recipe-meta-row">
+          <div class="meta-pill"><span class="meta-icon">⏱️</span><span class="meta-val">${escapeHTML(data.time)}</span><span class="meta-lbl">Time</span></div>
+          <div class="meta-pill"><span class="meta-icon">👥</span><span class="meta-val">${escapeHTML(data.servings)}</span><span class="meta-lbl">Serves</span></div>
+          <div class="meta-pill"><span class="meta-icon">🔥</span><span class="meta-val">${escapeHTML(data.calories)}</span><span class="meta-lbl">Calories</span></div>
+          <div class="meta-pill"><span class="meta-icon">📊</span><span class="meta-val">${escapeHTML(data.difficulty)}</span><span class="meta-lbl">Level</span></div>
+        </div>
+        <div class="recipe-body">
+          <div class="recipe-col">
+            <h4>Ingredients</h4>
+            <ul class="ingredient-list">${ingsHTML}</ul>
+          </div>
+          <div class="recipe-col">
+            <h4>Instructions</h4>
+            <ol class="steps-list">${stepsHTML}</ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  chat.appendChild(wrapper);
+  scrollChat();
+}
+
+function addNutritionCard(data) {
+  const chat = document.getElementById('chat');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'message';
+  wrapper.style.animation = 'msgIn 0.3s cubic-bezier(0.34,1.56,0.64,1)';
+
+  wrapper.innerHTML = `
+    <div class="avatar ai">🍝</div>
+    <div class="nutrition-card">
+      <div class="nutrition-header">
+        <div>
+          <h3>${escapeHTML(data.food)}</h3>
+          <p>Estimated nutrition breakdown</p>
+        </div>
+        <span style="margin-left:auto;background:rgba(255,255,255,0.1);color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;white-space:nowrap;">${escapeHTML(data.rating)}</span>
+      </div>
+      <div class="nutrition-macros">
+        <div class="macro-item"><div class="macro-val">${escapeHTML(data.calories)}</div><div class="macro-unit">kcal</div><div class="macro-lbl">Calories</div></div>
+        <div class="macro-item"><div class="macro-val">${escapeHTML(data.protein)}</div><div class="macro-unit">protein</div><div class="macro-lbl">Protein</div></div>
+        <div class="macro-item"><div class="macro-val">${escapeHTML(data.carbs)}</div><div class="macro-unit">carbs</div><div class="macro-lbl">Carbs</div></div>
+        <div class="macro-item"><div class="macro-val">${escapeHTML(data.fat)}</div><div class="macro-unit">fat</div><div class="macro-lbl">Fat</div></div>
+      </div>
+      <div class="nutrition-body">
+        <p style="margin-bottom:8px;">${escapeHTML(data.verdict)}</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:6px;padding-top:8px;border-top:1px solid var(--border);">💡 <em>${escapeHTML(data.tip)}</em></p>
+      </div>
+    </div>
+  `;
+  chat.appendChild(wrapper);
+  scrollChat();
+}
+
+function showTyping() {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.className = 'typing-wrapper';
+  el.id = 'typing-indicator';
+  el.innerHTML = `
+    <div class="avatar ai">🍝</div>
+    <div class="typing-bubble">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+  `;
+  chat.appendChild(el);
+  scrollChat();
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function scrollChat() {
+  const chat = document.getElementById('chat');
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatText(text) {
+  return escapeHTML(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\n\n/g, '</p><p style="margin-top:8px;">')
+    .replace(/\n/g, '<br>');
+}
+
+// ===================== SEND MESSAGE =====================
+async function sendMessage() {
+  if (isLoading) return;
+
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  addUserMessage(text);
+  messages.push({ role: 'user', content: text });
+  showTyping();
+
+  try {
+    const mode = MODES[currentMode];
+
+    const response = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        max_tokens: 1000,
+        messages: [
+          { role: 'system', content: mode.system },
+          ...messages
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'API error');
+    }
+
+    const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content || '';
+
+    messages.push({ role: 'assistant', content: reply });
+    removeTyping();
+
+    if (currentMode === 'recipe' || currentMode === 'nutrition') {
+      try {
+        const jsonMatch = reply.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (parsed.type === 'recipe') {
+            addRecipeCard(parsed);
+          } else if (parsed.type === 'nutrition') {
+            addNutritionCard(parsed);
+          } else {
+            addAIMessage(reply);
+          }
+        } else {
+          addAIMessage(reply);
+        }
+      } catch {
+        addAIMessage(reply);
+      }
+    } else {
+      addAIMessage(reply);
+    }
+
+  } catch (err) {
+    removeTyping();
+    console.error('Groq API error:', err);
+    addErrorMessage('Oops! Chef Meatball had a kitchen mishap: ' + err.message + '. Please try again. 🍝');
+  }
+
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('user-input').focus();
+}
+</script>
+</body>
+</html>
